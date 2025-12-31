@@ -13,6 +13,7 @@ CODEX_ACTION_FOLDER = os.getenv("CODEX_ACTION_FOLDER")
 app = App(token=SLACK_BOT_TOKEN)  # xoxb-...
 
 def _history_limit() -> int:
+    """Return a safe history limit from the environment."""
     raw = os.getenv("SLACK_HISTORY_LIMIT", "50")
     try:
         value = int(raw)
@@ -21,6 +22,7 @@ def _history_limit() -> int:
     return max(1, value)
 
 def _fetch_recent_history(client, channel_id: str, thread_ts: str | None, limit: int):
+    """Fetch recent Slack messages for a channel or thread as a compact list."""
     if thread_ts:
         resp = client.conversations_replies(channel=channel_id, ts=thread_ts, limit=limit)
         messages = resp.get("messages", [])
@@ -43,6 +45,7 @@ def _fetch_recent_history(client, channel_id: str, thread_ts: str | None, limit:
 # メンションされたときに動く
 @app.event("app_mention")
 def handle_app_mention(body, say, client):
+    """Handle app mentions and dispatch a Codex execution with context."""
     event = body["event"]
     text = event.get("text", "")
     channel = event["channel"]
