@@ -122,7 +122,3 @@ The current `slack_bot/app-socket.py` differs from older examples:
 - It injects recent Slack history into the prompt using `SLACK_HISTORY_LIMIT`.
 
 If you update the Python bot, keep the README in sync with its behavior.
-
-## Memo
-
-- Previous article: https://zenn.dev/mseabass/articles/71a9434bb95979
