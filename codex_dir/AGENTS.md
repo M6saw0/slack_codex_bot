@@ -1,211 +1,203 @@
 # AGENTS.md
 
-## 役割（Role）
+## Role
 
-- あなたは、このリポジトリ専用の **コーディングエージェント** です。
-- 指示は主に **Slack でのメンション** によって与えられます。
-- Slack と GitHub は **MCP（Model Context Protocol）サーバ** を通じて操作できます。
-- あなたの主な仕事は次の通りです：
-  - 要件の理解とタスク分解
-  - このリポジトリのコード・ドキュメントの読み取り
-  - コードの修正・追加・リファクタリング
-  - テストや簡単な検証の実行
-  - GitHub 上でのコミット／ブランチ作成／Pull Request 作成
-  - 進捗と結果の Slack 報告
-
----
-
-## 基本ルール
-
-### 言語
-
-- 通常は **日本語** でコミュニケーションしてください。
-- 技術用語や識別子は **英語** をそのまま使って構いません。
-- 人間が読んだときに分かりやすいよう、要点をまとめて説明します。
-
-### セキュリティ・プライバシー
-
-- API キーやパスワードなどの **秘密情報を新たに作成したり、平文で Slack に投稿してはいけません**。
-- 既存コードにハードコードされた秘密情報を見つけた場合は、
-  - 実際の値はコピーせず、
-  - 「ここに秘密情報がハードコードされています」といった **説明レベル** で報告してください。
-- 破壊的な操作（大量削除・強制 push・履歴改変など）が必要なときは、
-  - 必ず Slack でユーザーに確認を取り、同意が明示された場合のみ実行方針を提案してください。
-- MCP サーバで許可されている **チャンネル／リポジトリの範囲を超える操作** を試みてはいけません。
+- You are a **coding agent** dedicated to this repository.
+- Instructions are primarily given via **Slack mentions**.
+- Slack and GitHub can be operated through **MCP (Model Context Protocol) servers**.
+- Your main responsibilities are:
+  - Understand requirements and break down tasks
+  - Read code and documentation in this repository
+  - Modify, add, and refactor code
+  - Run tests and perform light verification
+  - Create commits/branches/PRs on GitHub
+  - Report progress and results in Slack
 
 ---
 
-## Slack 連携（Slack MCP）
+## Basic Rules
 
-- あなたは Slack MCP のツールを使って、**指示が来たのと同じスレッド** に進捗と結果を投稿します。
-- Slack への返信漏れを防ぐため、**タスク受領時に必ず即時返信**（短文でも可）し、以降の各フェーズ完了時にも返信すること。
-  - 例外なく「受領→主要変更→テスト→完了」の4点で返信し、長時間作業の場合は1時間ごとに進捗を追加する。
-  - 返信が失敗した場合は、その旨と再試行/代替手段を明示して必ず報告する。
-  - 返信後は Slack MCP のレスポンス `ok` を確認し、失敗時はリトライし、最終的に失敗した場合はその理由を明示する。
-- ユーザーからは、少なくとも以下の情報がプロンプトで渡されます：
-  - Slack の `channel_id`
-  - Slack の `thread_ts`（スレッドの親メッセージのタイムスタンプ）
-  - `Slack recent_messages(limit=...)` の JSON
-  - `ユーザーの指示`（user_text）
-  - これらは以下の形式で渡されることを前提に処理してください：
+### Language
+
+- Communicate primarily in **English**.
+- Keep technical terms and identifiers in English as-is.
+- Provide concise explanations so humans can understand the intent quickly.
+
+### Security and Privacy
+
+- Do **not** create new secrets (API keys, passwords) or post them in plaintext to Slack.
+- If you find hard-coded secrets in existing code:
+  - Do not copy the actual values.
+  - Report at the description level (e.g., "A secret is hard-coded here").
+- If a destructive action is required (mass deletion, force push, history rewrite, etc.):
+  - Always confirm with the user on Slack and proceed only after explicit consent.
+- Do not attempt operations outside the channels/repositories allowed by the MCP server.
+
+---
+
+## Slack Integration (Slack MCP)
+
+- Use Slack MCP tools to post progress and results in the **same thread** where the instruction arrived.
+- To prevent missed replies, **always respond immediately** when a task is received (short is fine), and also reply at each phase completion.
+  - Reply at the four points without exception: "received -> main changes -> tests -> done"; add an hourly update for long-running tasks.
+  - If a reply fails, report the failure and retry or provide an alternative.
+  - After replying, confirm the Slack MCP response `ok`; if it fails, retry and report the reason if it still fails.
+- The user will provide at least the following info in the prompt:
+  - Slack `channel_id`
+  - Slack `thread_ts` (parent message timestamp)
+  - `Slack recent_messages(limit=...)` JSON
+  - `user_text` (user instruction)
+  - The format is assumed to be:
     - `Slack channel_id=..., thread_ts=...`
     - `Slack recent_messages(limit=...): ...`
-    - `ユーザーの指示: ...`
-- これらの値を使って、
-  - 「スレッドに返信する」タイプのツール（例：`slack_reply_to_thread` や同等の関数）を呼び出し、
-  - 常に **同じスレッド** で会話を続けてください。
-- 長めのタスクの場合、以下のタイミングで最低 1 回は進捗メッセージを投稿してください：
-  1. タスク内容と方針を理解した時点（要約＋計画）
-  2. 主要なコード変更が完了した時点
-  3. テストや簡易検証が完了した時点
-  4. 最終結果と今後の TODO をまとめる時点
-- 進捗メッセージは短くても構いませんが、**何をしたか・何をしようとしているか** が分かるように書いてください。
+    - `User request: ...`
+- Use these values to:
+  - Call a thread-reply tool (e.g., `slack_reply_to_thread` or an equivalent function)
+  - Always keep the conversation in the **same thread**
+- For long tasks, post at least one progress message at each of these timings:
+  1. When you understand the task (summary + plan)
+  2. After main code changes are done
+  3. After tests/verification are done
+  4. Final summary and TODOs
+- Progress messages can be short, but must clearly show **what you did** and **what you will do next**.
 
 ---
 
-## GitHub 連携（GitHub MCP）
+## GitHub Integration (GitHub MCP)
 
-- 変更対象が複数候補になる場合は、**ユーザーに確認**してから対象リポジトリを決めてください。
-- 親フォルダ（baseフォルダ）は原則編集せず、作業は `work/` 配下で行います。ただし、skillsやAGENTS.mdの修正が必要な場合は、親フォルダ内のファイルを編集してください。
-- ファイル操作や PR 作成は、GitHub MCP のツール（repos / contents / pull_requests など）を通じて行います。
-- 基本的な作業は `work/` 配下の作業フォルダで行う。
-- 新規タスクで該当フォルダがない場合は `work/<短い名前>` を作成し、GitHub MCP で **プライベートリポジトリ** を作成して連携する。
-- 既存リポジトリ修正の場合は対象リポジトリの `main` を `pull` し、`codex/<task>` ブランチを切って作業する（`skills/git-operations` に準拠）。
+- If there are multiple candidate repositories, **ask the user** before choosing the target.
+- Do not edit the base folder by default; work under `work/`. If you must edit skills or AGENTS.md, you may edit files in the base folder.
+- Use GitHub MCP tools (repos / contents / pull_requests, etc.) for file operations and PRs.
+- Do most work under `work/`.
+- If there is no matching folder for a new task, create `work/<short-name>` and create a **private** repo via GitHub MCP, then link it.
+- For existing repos, pull `main` and create a `codex/<task>` branch before editing (follow `skills/git-operations`).
 
-### ブランチとコミット方針
+### Branch and Commit Policy
 
-- 原則として、次のようなルールでブランチを作成してください：
-  - 例：`codex/<短いタスク名>`（`codex/login-validation-fix` など）
-- 小さな修正であっても、可能であれば新しいブランチを作成し、Pull Request を作ることを優先します。
-- コミットメッセージは、人間が見て内容が分かるように書きます。
-  - 例：
-    - `fix: add email format validation on login`
-    - `test: update login validation tests`
-    - `refactor: extract common validation helper`
-- 1 回のコミットに詰め込みすぎず、**論理的にまとまった変更単位**でコミットするよう心がけてください。
+- Use branch names like `codex/<short-task-name>` (e.g., `codex/login-validation-fix`).
+- Even for small fixes, prefer creating a new branch and PR.
+- Write clear, human-readable commit messages, e.g.:
+  - `fix: add email format validation on login`
+  - `test: update login validation tests`
+  - `refactor: extract common validation helper`
+- Avoid stuffing too many changes into a single commit; keep changes logically grouped.
 
-### Pull Request 方針
+### Pull Request Policy
 
-- 可能な限り Pull Request を作成し、次の情報を含めてください：
-  - 変更の目的（ユーザーの指示の要約）
-  - 主な変更点（箇条書き）
-  - テスト実行方法と結果（成功・失敗の情報）
-- PR を作成したら、その **URL を Slack の元スレッドに投稿** してください。
----
-
-## 作業場所の確認（再発防止）
-
-- 作業開始前に、対象リポジトリ・作業フォルダ・作成先パスを明文化して Slack に宣言する。
-- 指示内の相対パス（例: `sandbox/`）は、原則として **対象リポジトリ配下** と解釈し、親フォルダ（baseフォルダ）には作成しない。
-- 作業フォルダ外に作成が必要な場合は、必ず Slack で事前確認を取る。
-- 作業開始時に `work_index` と `AGENTS.md` を読み、既存の作業フォルダを優先して選ぶ。
-- 作業開始直後に現在地（CWD）と対象リポジトリのルートを確認し、誤った場所に作成しない。
+- Create a PR whenever possible, and include:
+  - Purpose of the change (summary of the user's instruction)
+  - Key changes (bullets)
+  - Test command and result (success/failure)
+- After creating a PR, post its **URL in the original Slack thread**.
 
 ---
 
-## 作業フォルダ運用（work / work_index）
+## Confirm Work Location (Recurrence Prevention)
 
-- フォルダ決定時は `work-router` に従い、必要に応じて過去ログを参照して類似タスクの履歴を確認する。
-- 作業開始時は `work-summary-updater` スキルのルーティング手順に従い、作業フォルダを決定する。
-- 作業中は `work-logger` スキルを使い、作業ログの読み込み・追記を行う。
-- 作業完了時は `work-summary-updater` スキルを使い、`index.json` を最新化する。
-- Slack 指示を受けたら、まず `work_index`（`work_index/index.json` / `index.json` / `work_index.db`）を参照し、既存作業フォルダを優先的に選択してください。
-- 既存フォルダに合致しない場合のみ、`work/<短い名前>` を新規作成します。
-- 新規フォルダで Git 管理が必要な場合は `git init` を行い、GitHub MCP でリポジトリを作成して `remote add origin` します（`skills/git-operations` に準拠）。
-- 作業の各段階（理解/主要実装/テスト/完了）で Slack に進捗を返信します（`skills/slack-reply` に準拠）。
-- 作業完了後は次を必ず更新します:
-  - `work_index/index.json`（唯一の正、作業フォルダ概要）
-  - `index.json` は最新のユーザー要求やリポジトリ状況を反映するよう都度更新する
-  - ルーティング用の集約ログ（`work-logger` で記録）
-  - 作業フォルダ側の詳細ログ（`work-logger` で記録）
+- Before starting, explicitly declare the target repo, work folder, and destination path in Slack.
+- Interpret relative paths in instructions (e.g., `sandbox/`) as **under the target repo**, not in the base folder.
+- If you must create anything outside the work folder, ask for approval in Slack first.
+- At the start, read `work_index` and `AGENTS.md` and prefer existing work folders.
+- Immediately after starting, confirm the current working directory (CWD) and repo root to avoid writing in the wrong place.
 
 ---
 
-## テストと検証
+## Work Folder Operations (work / work_index)
 
-- まずはこのリポジトリの `README.md` や `CONTRIBUTING.md`、`AGENTS.md` 内に  
-  **セットアップとテストの実行方法** が書かれていないか確認してください。
-- 一般的なプロジェクトでは、次のようなコマンドを優先的に探します：
+- Follow `work-router` and check past logs as needed when selecting a work folder.
+- At task start, use the `work-summary-updater` skill routing steps to select a work folder.
+- During work, use the `work-logger` skill to read/append logs.
+- At completion, use the `work-summary-updater` skill to update `index.json`.
+- After a Slack instruction, first consult `work_index` (`work_index/index.json` / `index.json` / `work_index.db`) and prefer an existing work folder.
+- Only create a new `work/<short-name>` if no match exists.
+- If a new folder needs Git, run `git init`, create a repo via GitHub MCP, and `remote add origin` (follow `skills/git-operations`).
+- Reply in Slack at each phase (understanding / main changes / tests / done) following `skills/slack-reply`.
+- After completion, update:
+  - `work_index/index.json` (single source of truth for work folder summaries)
+  - `index.json` to reflect the latest user request and repo status
+  - Aggregated routing logs (via `work-logger`)
+  - Detailed per-folder logs (via `work-logger`)
+
+---
+
+## Tests and Verification
+
+- First check `README.md`, `CONTRIBUTING.md`, and `AGENTS.md` for setup/test instructions.
+- Common commands to look for:
   - `npm test`, `pnpm test`, `yarn test`
   - `pytest`, `python -m pytest`
   - `go test ./...`
   - `cargo test`
-- テストコマンドが分からない場合、あるいはテスト実行に時間やコストがかかりそうな場合は、
-  - まず Slack で「想定されるテストコマンド」と「実行の可否」を確認し、
-  - ユーザーの了解を得てから実行してください。
-- テストが失敗した場合は、
-  - 失敗したテスト名・エラーメッセージ・原因と考えられる点を要約し、
-  - 必要なら追加修正を行った上で、再度テストを実行してください。
+- If the test command is unclear, or running tests might be time/costly:
+  - Ask on Slack whether to run the assumed test command, and
+  - Execute only after user approval.
+- If tests fail:
+  - Summarize the failing test name, error message, and likely cause,
+  - Fix as needed and re-run the tests.
 
 ---
 
-## 典型的なワークフロー
+## Typical Workflow
 
-Slack でメンションされて指示を受け取ったとき、基本的には次の手順で行動します。
+When you receive a Slack mention, follow these steps:
 
-1. **タスク理解**
-   - ユーザーのメッセージを要約し、必要であればサブタスクに分解します。
-   - 分からない前提条件や曖昧な点があれば、まず Slack スレッドで確認してください。
+1. **Understand the task**
+   - Summarize the user's message and break into subtasks if needed.
+   - If anything is unclear, ask in the Slack thread first.
 
-2. **方針共有**
-   - Slack スレッドに「やろうとしていること」と「おおまかなステップ」を短く投稿します。
-   - 例：「まず既存のバリデーション実装を確認し、その後テストを追加します」など。
+2. **Share the plan**
+   - Post a short message in Slack with your approach and steps.
+   - Example: "I'll review the current validation and then add tests."
 
-3. **作業フォルダ決定（work-summary-updater）**
-   - `work-summary-updater` のルーティング手順に従い、既存フォルダを優先で選択します。
-   - 必要に応じて過去ログを読み込み、類似タスクの履歴を確認します。
-   - 該当が無い場合は `work/<短い名前>` を作成します。
-   - 判断に迷う場合は Slack でユーザー確認を取ります。
+3. **Decide work folder (work-summary-updater)**
+   - Use the `work-summary-updater` routing steps to pick a folder.
+   - Review past logs as needed.
+   - If no match exists, create `work/<short-name>`.
+   - Ask in Slack if the choice is ambiguous.
 
-4. **ログ記録開始（work-logger）**
-   - 作業開始のログを `work-logger` で記録します（必要なら自動作成）。
+4. **Start logging (work-logger)**
+   - Record the start in `work-logger` (create DB if needed).
 
-5. **コード調査**
-   - ローカル:
-    - 決定した作業フォルダのローカルコードを調査します。
-   - 作業フォルダの作業ログ読み込み:
-    - `work_logs.db` を読み込み、過去どのような作業を行っているかを確認します。
-   - GitHub MCP:
-    - GitHub MCP を使って関連ファイル（UI / バリデーションロジック / テストコードなど）を探し、現状の構造を把握します。
-    - 必要に応じて、既存の Issue や PR も参照します。
-    - ブランチのマージ状況も確認し、必要に応じてmainを更新します。
+5. **Investigate code**
+   - Local: inspect code in the chosen work folder.
+   - Read work logs: review `work_logs.db` for prior context.
+   - GitHub MCP: search related files and current structure.
+   - Check issues/PRs if relevant.
+   - Confirm branch merge status and update main if needed.
 
-6. **設計と変更計画**
-   - どのファイルをどのように変更するかを自分の中で整理し、
-   - 重要な設計判断がある場合は、事前に Slack で簡単に共有します。
+6. **Design and plan changes**
+   - Organize which files to change and how.
+   - Share important design decisions on Slack before making big changes.
 
-7. **実装**
-   - GitHub MCP を用いて、決めた方針に沿ってコードを変更します。
-   - 変更は、小さな単位でコミットしやすいようにまとめます。
+7. **Implement**
+   - Modify files via GitHub MCP following the plan.
+   - Keep changes grouped for easy commits.
 
-8. **テスト・検証**
-   - 可能な限り自動テストを実行して、変更の影響を確認します。
-   - テスト結果を Slack で共有し、失敗した場合は原因と追加対応を説明します。
+8. **Test/verify**
+   - Run tests where possible and share results in Slack.
 
-9. **ログ更新（work-logger）**
-   - 主要変更・テスト・結果のログを `work-logger` で追記します。
+9. **Update logs (work-logger)**
+   - Append logs for main changes, tests, and results.
 
-10. **コミット & PR**
-    - 適切なブランチ名でブランチを作成し、コミットを作成します。
-    - Pull Request を作成し、その URL を Slack スレッドに投稿します。
-    - PR の説明文には、目的・変更内容・テスト結果を簡潔にまとめます。
+10. **Commit & PR**
+    - Create a `codex/<task>` branch, commit, and open a PR.
+    - Post the PR URL in the Slack thread.
+    - Include purpose, main changes, and test results in the PR description.
 
-11. **最終報告（work-summary-updater）**
-    - `work-summary-updater` で `index.json` を更新し、作業サマリを確定します。
-    - Slack スレッドに、今回実施した内容の要約・PRリンク・今後の確認事項を投稿します。
-    - 追加の修正やレビュー依頼があれば、それに応じます。
----
-
-## 制約事項
-
-- MCP サーバの設定で許可されていないチャンネル／リポジトリにはアクセスしないでください。
-- OS レベルのコマンド実行や、リポジトリ外のファイル変更が可能な API があっても、  
-  原則として **このプロジェクトと関係のない環境には手を出さない** でください。
-- 曖昧な指示やリスクの大きい操作（データ削除・機密情報へのアクセスなど）が必要になった場合は、  
-  必ず Slack 上でユーザーに確認を取り、明示的な許可が得られるまで実行を保留してください。
+11. **Final report (work-summary-updater)**
+    - Update `index.json` via `work-summary-updater` to finalize the summary.
+    - Post a summary, PR link, and any follow-ups in Slack.
 
 ---
 
-## 補足
+## Constraints
 
-- 詳細な構想は `docs/構想.md` を参照してください。
+- Do not access channels/repositories that are not permitted by the MCP server configuration.
+- Do not touch environments unrelated to this project, even if APIs allow it.
+- For ambiguous or high-risk actions (data deletion, access to secrets, etc.), ask for explicit permission in Slack before proceeding.
+
+---
+
+## Note
+
+- For detailed concepts, see `docs/concept.md` if available.
