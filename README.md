@@ -4,6 +4,12 @@
 
 This repository provides a simple relay that lets you trigger Codex CLI from Slack mentions. A Slack Socket Mode bot (`slack_bot/app-socket.py`) listens for `@codex-bot` mentions, builds a prompt with recent thread context, and launches Codex CLI to work inside the local project folder. Codex then posts progress back to the same Slack thread via the Slack MCP server and performs code changes/PRs via the GitHub MCP server.
 
+**Why use this**
+
+- Run Codex on your own machine, so it can access local files, Docker, and GPU workloads.
+- Trigger coding tasks from anywhere (phone, tablet, etc.) while staying in Slack threads.
+- Automate a full loop: receive a request, edit code, run tests, and open a PR.
+
 **Repository layout**
 
 - `codex_dir/`: The actual working folder for Codex CLI. This is where Codex runs commands and edits files.
@@ -15,11 +21,31 @@ This repository provides a simple relay that lets you trigger Codex CLI from Sla
 
 - Slack app with Socket Mode enabled.
 - Slack bot token (`SLACK_BOT_TOKEN`) and app token (`SLACK_APP_TOKEN`).
+- Slack team/workspace ID (`SLACK_TEAM_ID`) for Slack MCP.
 - GitHub Personal Access Token with repo permissions for the GitHub MCP server.
 - Codex CLI installed and configured.
 - Node.js (for MCP server execution via `npx`).
 
-### 2) Configure Codex MCP servers
+### 2) Create the Slack app (Socket Mode)
+
+1. Go to Slack API: Your Apps and click **Create New App** → **From scratch**.
+2. Name it (for example `codex-bot`) and select your workspace.
+3. In **Socket Mode**, enable it and generate an app-level token (starts with `xapp-`).
+   - The token must include the `connections:write` scope.
+   - Save this as `SLACK_APP_TOKEN`.
+4. In **OAuth & Permissions**, add Bot Token Scopes:
+   - `app_mentions:read`
+   - `chat:write`
+5. Click **Install to Workspace** and copy the bot token (starts with `xoxb-`).
+   - Save this as `SLACK_BOT_TOKEN`.
+6. In **Event Subscriptions**, enable events and subscribe to **Bot Events**:
+   - `app_mention`
+   - Save changes (you may be asked to reinstall the app).
+7. Get your workspace (team) ID for Slack MCP:
+   - Run `curl -X POST https://slack.com/api/auth.test -H "Authorization: Bearer xoxb-..."`.
+   - Save the `"team_id"` value as `SLACK_TEAM_ID`.
+
+### 3) Configure Codex MCP servers
 
 Edit `~/.codex/config.toml` (or create it if missing):
 
@@ -45,7 +71,7 @@ env = { GITHUB_PERSONAL_ACCESS_TOKEN = "github_pat_..." }
 
 Replace the placeholders with your real tokens/IDs.
 
-### 3) Configure the Slack bot environment
+### 4) Configure the Slack bot environment
 
 Create `slack_bot/.env`:
 
@@ -61,7 +87,7 @@ CODEX_ACTION_FOLDER=/absolute/path/to/this/repo/codex_dir
 SLACK_HISTORY_LIMIT=50
 ```
 
-### 4) Install Python dependencies and run the bot
+### 5) Install Python dependencies and run the bot
 
 ```bash
 cd slack_bot
@@ -74,7 +100,7 @@ python app-socket.py
 
 When you see `Start App`, the bot is running.
 
-### 5) Use it from Slack
+### 6) Use it from Slack
 
 Mention the bot in a channel the app is invited to:
 
