@@ -28,7 +28,7 @@ This repository provides a simple relay that lets you trigger Codex CLI from Sla
 
 ### 2) Create the Slack app (Socket Mode)
 
-1. Go to Slack API: Your Apps and click **Create New App** → **From scratch**.
+1. Go to Slack API: Your Apps (https://api.slack.com/apps) and click **Create New App** → **From scratch**.
 2. Name it (for example `codex-bot`) and select your workspace.
 3. In **Socket Mode**, enable it and generate an app-level token (starts with `xapp-`).
    - The token must include the `connections:write` scope.
