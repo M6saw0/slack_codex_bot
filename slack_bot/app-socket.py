@@ -40,7 +40,7 @@ def _fetch_recent_history(client, channel_id: str, thread_ts: str | None, limit:
         })
     return formatted
 
-# メンションされたときに動く
+# Runs when mentioned
 @app.event("app_mention")
 def handle_app_mention(body, say, client):
     event = body["event"]
@@ -51,7 +51,7 @@ def handle_app_mention(body, say, client):
 
     print(f"user_text: {text}")
 
-    # メンション部分を削る
+    # Remove the mention part
     parts = text.split(maxsplit=1)
     user_text = parts[1].strip() if len(parts) == 2 and parts[0].startswith("<@") else text.strip()
     if not user_text:
@@ -62,18 +62,18 @@ def handle_app_mention(body, say, client):
     history_json = json.dumps(recent_messages, ensure_ascii=False)
 
     prompt = (
-        f"Slack channel_id={channel}, thread_ts={thread_ts} です。"
-        f"Slack MCP を使ってこのスレッドに進捗と結果を投稿しながら、"
-        f"GitHub MCP で必要なコード修正・テスト・コミット・PR作成まで行ってください。"
+        f"Slack channel_id={channel}, thread_ts={thread_ts}. "
+        f"Use Slack MCP to post progress and results to this thread, "
+        f"and use GitHub MCP to make code changes, run tests, commit, and open a PR. "
         f"Slack recent_messages(limit={history_limit}): {history_json}"
-        f"ユーザーの指示: {user_text}"
+        f"User request: {user_text}"
     )
 
     subprocess.Popen(
         ["codex", "exec", "--full-auto", prompt],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
-        cwd=CODEX_ACTION_FOLDER,  # Codexアクション用フォルダで実行
+        cwd=CODEX_ACTION_FOLDER,  # Run in the Codex action folder
     )
 
 if __name__ == "__main__":
