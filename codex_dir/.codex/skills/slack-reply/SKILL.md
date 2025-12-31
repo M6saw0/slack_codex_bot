@@ -8,51 +8,51 @@ description: >-
 
 # Slack Reply Skill
 
-このスキルは Slack MCP でのコミュニケーションを統一するためのガイドです。タスクの
-開始から完了まで、常にユーザーと同じスレッドで対話し、進捗をこまめに共有します。
+This skill standardizes communication via Slack MCP. From task start to finish, always
+reply in the same thread and share progress frequently.
 
-## 前提
-- `slack_reply_to_thread`（または thread_ts 指定の `slack_post_message`）を使う。
-- `channel_id`, `thread_ts` は FastAPI/Bolt から渡されるため、自分で取り直す必要はない。
-- 機密情報は書かず、必要なら「別途共有」などと記載する。
+## Prerequisites
+- Use `slack_reply_to_thread` (or `slack_post_message` with `thread_ts`).
+- `channel_id` and `thread_ts` are provided by FastAPI/Bolt; no need to re-fetch them.
+- Do not include secrets; if necessary, say "shared separately".
 
-## 即時返信ルール
-1. メンションや質問を受けたら **必ず同じスレッドに返信** し、まず受領連絡を送る。
-2. すぐ回答できない場合も「作業に入ります／何分後に報告します」と明示する。
-3. 長時間（1時間以上）の作業や検証が続くときは、途中で追加の進捗を投稿する。
+## Immediate Acknowledgement Rules
+1. When you receive a mention or question, **always reply in the same thread** and acknowledge receipt first.
+2. Even if you cannot answer right away, state "starting work" and when you will report back.
+3. If a task or verification takes longer than 1 hour, post an interim update.
 
-## 進捗報告タイミング
-1. **タスク理解**: 要約と計画、疑問点。
-2. **主要実装完了**: 変更ファイル・内容・次アクション。
-3. **テスト完了**: コマンド、結果（未実施なら理由）。
-4. **最終報告**: 変更要約、コミット/PR、TODO、テスト状況。
-- 追加で、作業が長引く場合は1時間ごとに簡潔な進捗を挟む。
+## Progress Reporting Timing
+1. **Task understanding**: summary, plan, open questions.
+2. **Main changes done**: changed files, content, next action.
+3. **Tests done**: command and result (or reason for not running).
+4. **Final report**: change summary, commit/PR, TODOs, test status.
+- For long work, add a short update every hour.
 
-## メッセージテンプレ
+## Message Templates
 ```text
-タスクを把握しました。以下で進めます。
+I understand the task. I will proceed as follows.
 1. ...
 2. ...
-不明点があれば確認します。
+Let me know if anything is unclear.
 ```
 ```text
-進捗です。<実施内容> を完了し、次は <次ステップ> に着手します。
+Progress update: <what was done> is complete. Next, I will work on <next step>.
 ```
 ```text
-完了しました。
-- 変更: ...
-- コミット/PR: ...
-- テスト: ...
-追加要望があればお知らせください。
+Done.
+- Changes: ...
+- Commit/PR: ...
+- Tests: ...
+Let me know if you need anything else.
 ```
 
-## エラー/遅延時
-- Slack API 失敗や MCP 制限に遭遇したら、レスポンス内容を要約して報告し、再試行可否を確認。
-- 参加不可（例: 実行待ち）な場合も、その旨と次に報告できる目安を伝える。
+## Errors / Delays
+- If a Slack API or MCP issue occurs, summarize the response, report it, and ask whether to retry.
+- If you cannot proceed (e.g., waiting for approval), state that and give the next ETA.
 
-## チェックリスト
-- [ ] 指示スレッドに即時返信した
-- [ ] 進捗を規定タイミング＋長時間時の中間報告で共有
-- [ ] 実施内容／次アクションを箇条書きで明記
-- [ ] テスト結果 or 未実施理由を報告
-- [ ] コミット/PR 情報をリンク付きで共有
+## Checklist
+- [ ] Replied immediately in the instruction thread
+- [ ] Shared progress at required timings plus hourly updates if long-running
+- [ ] Clearly listed what was done and the next action
+- [ ] Reported test results or the reason for not running
+- [ ] Shared commit/PR info with link
