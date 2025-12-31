@@ -1,45 +1,50 @@
 ---
 name: work-summary-updater
 description: >-
-  Update work_index/index.json and index.json based on recent work folder activity and
-  work_index.db. Use at the end of a task.
+  Update work_index/index.json and index.json based on recent work folder activity
+  and work_index.db. Use at the end of a task.
 ---
 
 # Work Summary Updater Skill
 
-このスキルは、作業開始時のルーティング判断と、作業完了時の **index.json（唯一の正）** 更新を行う手順です。
+This skill covers routing decisions at the start of work and the **index.json (single source of truth)** update at completion.
 
-## 対象
-- `work_index/index.json`（唯一の正）
-- `work_index/work_index.db`
+## Targets
+- `work_index/index.json` (single source of truth)
+- `index.json` (top-level summary)
 
-## 付属スクリプト
-- `scripts/manage_work_index.py` : work_index 用の ensure/upsert/query
+## Included Script
+- `scripts/manage_work_index.py` : ensure/upsert/query for work_index
 
-## ルーティング手順
-1. 指示文を要約し、主要キーワードを抽出する。
-2. `index.json` の `keywords` / `query_patterns` を照合する。
-3. 一致度が高い作業フォルダを選択する。
-4. 候補が複数・曖昧な場合は Slack で確認する。
-5. 該当が無い場合は `work/<短い名前>` を新規作成する。
+## Routing Steps
+1. Summarize the instruction and extract key keywords.
+2. Match against `keywords` / `query_patterns` in `index.json`.
+3. Select the best-matching work folder.
+4. If multiple candidates or unclear, confirm via Slack.
+5. If none match, create `work/<short-name>`.
 
-## 更新方針
-- `index.json` は最新のユーザー要求やリポジトリ状況を反映する。
+## Update Policy
+- Keep `index.json` aligned with the latest user request and repo status.
 
-## 更新手順
-1. `work_index/work_index.db` の最新レコードを参照する。
-2. 更新対象フォルダの `summary` / `tags` / `query_patterns` を整理する。
-3. `index.json` を更新する（唯一の正・最新の要求/状況を反映）。
+## Update Steps
+1. Read the latest record in `work_index/work_index.db`.
+2. Organize `summary` / `tags` / `query_patterns` for the target folder.
+3. Update `index.json` (single source of truth; reflect latest request/status).
 
-## 書式ルール
-- `index.json` は `folder` / `summary` / `keywords` / `query_patterns` / `last_used` を含める
+## Format Rules
+- `index.json` must include `folder` / `summary` / `keywords` / `query_patterns` / `last_used`.
 
-## 注意
-- `index.json` が唯一の正とする。
-- JSONは有効な形式を保つ（末尾カンマ禁止）。
+## Notes
+- `index.json` is the single source of truth.
+- Keep JSON valid (no trailing commas).
 
-## 使い方例
+## Example
 ```bash
 python scripts/manage_work_index.py ensure
-python scripts/manage_work_index.py query --limit 5
+python scripts/manage_work_index.py upsert \
+  --folder "work/20251231_slack_codex_bot" \
+  --summary "Slack-controlled Codex CLI bot repo" \
+  --keywords "slack,codex,bot,github" \
+  --query-patterns "slack.*codex,slack bot" \
+  --last-used "2025-12-31"
 ```
