@@ -199,5 +199,3 @@ When you receive a Slack mention, follow these steps:
 ---
 
 ## Note
-
-- For detailed concepts, see `docs/concept.md` if available.
