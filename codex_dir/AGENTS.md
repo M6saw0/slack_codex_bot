@@ -195,7 +195,3 @@ When you receive a Slack mention, follow these steps:
 - Do not access channels/repositories that are not permitted by the MCP server configuration.
 - Do not touch environments unrelated to this project, even if APIs allow it.
 - For ambiguous or high-risk actions (data deletion, access to secrets, etc.), ask for explicit permission in Slack before proceeding.
-
----
-
-## Note
