@@ -15,6 +15,16 @@ This repository provides a simple relay that lets you trigger Codex CLI from Sla
 - `codex_dir/`: The actual working folder for Codex CLI. This is where Codex runs commands and edits files.
 - `slack_bot/`: The Python Socket Mode app that receives Slack mentions and launches Codex CLI.
 
+## ⚠️ Disclaimer
+
+This project runs Codex CLI in `--full-auto` mode, which grants it significant autonomy to execute commands, modify files, and interact with external services (Slack, GitHub) without manual confirmation. While this enables a powerful hands-free workflow, please be aware of the following:
+
+- **Use at your own risk.** The authors of this project are not responsible for any unintended changes, data loss, or other issues that may arise.
+- **Review the permissions carefully.** The GitHub token and Slack app have broad access. Consider limiting scopes or repository access where possible.
+- **Start with low-risk tasks.** We recommend testing with non-critical repositories first to get comfortable with how the bot behaves.
+
+By using this project, you acknowledge that you understand these risks and accept full responsibility for its operation in your environment. Happy automating! 🚀
+
 ## Usage
 
 ### 1) Prerequisites
