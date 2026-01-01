@@ -52,8 +52,6 @@ def handle_app_mention(body, say, client):
     event_thread_ts = event.get("thread_ts")
     thread_ts = event_thread_ts or event.get("ts")
 
-    print(f"user_text: {text}")
-
     # Remove the mention part
     parts = text.split(maxsplit=1)
     user_text = parts[1].strip() if len(parts) == 2 and parts[0].startswith("<@") else text.strip()
@@ -64,6 +62,11 @@ def handle_app_mention(body, say, client):
     recent_messages = _fetch_recent_history(client, channel, event_thread_ts, history_limit)
     history_json = json.dumps(recent_messages, ensure_ascii=False)
 
+    print("-"*50 + "\n")
+    print(f"history: {history_json}")
+    print(f"user_text: {text}")
+    print("-"*50 + "\n")
+
     prompt = (
         f"Slack channel_id={channel}, thread_ts={thread_ts}. "
         f"Use Slack MCP to post progress and results to this thread, "
@@ -73,7 +76,8 @@ def handle_app_mention(body, say, client):
     )
 
     subprocess.Popen(
-        ["codex", "exec", "--full-auto", prompt],
+        # ["codex", "exec", "--full-auto", prompt],
+        ["codex", "exec", "--full-auto", "--skip-git-repo-check", prompt],  # skip git repo check to avoid error
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         cwd=CODEX_ACTION_FOLDER,  # Run in the Codex action folder
