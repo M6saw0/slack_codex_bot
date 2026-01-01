@@ -1,4 +1,2 @@
 slack-bolt
 python-dotenv
-fastapi
-uvicorn

@@ -36,6 +36,7 @@ This repository provides a simple relay that lets you trigger Codex CLI from Sla
 4. In **OAuth & Permissions**, add Bot Token Scopes:
    - `app_mentions:read`
    - `chat:write`
+   - `groups:history`
 5. Click **Install to Workspace** and copy the bot token (starts with `xoxb-`).
    - Save this as `SLACK_BOT_TOKEN`.
 6. In **Event Subscriptions**, enable events and subscribe to **Bot Events**:
@@ -45,7 +46,24 @@ This repository provides a simple relay that lets you trigger Codex CLI from Sla
    - Run `curl -X POST https://slack.com/api/auth.test -H "Authorization: Bearer xoxb-..."`.
    - Save the `"team_id"` value as `SLACK_TEAM_ID`.
 
-### 3) Configure Codex MCP servers
+### 3) Create a GitHub Personal Access Token
+
+1. Go to GitHub **Settings** → **Developer settings**.
+2. Select **Personal access tokens** → **Fine-grained tokens**.
+3. Click **Generate new token**.
+4. Configure **Repository access**:
+   - Select **All repositories** (or specific repos if you prefer).
+5. Configure **Permissions** (Repository permissions):
+   - **Administration**: Read and write
+   - **Contents**: Read and write
+   - **Issues**: Read and write
+   - **Pull requests**: Read and write
+6. Click **Generate token** and copy the token (starts with `github_pat_`).
+   - Save this as `GITHUB_PERSONAL_ACCESS_TOKEN`.
+
+> ⚠️ **Note**: These permissions are relatively broad. Handle the token with care and consider limiting repository access if possible.
+
+### 4) Configure Codex MCP servers
 
 Edit `~/.codex/config.toml` (or create it if missing):
 
@@ -72,7 +90,7 @@ env = { GITHUB_PERSONAL_ACCESS_TOKEN = "github_pat_..." }
 
 Replace the placeholders with your real tokens/IDs.
 
-### 4) Configure the Slack bot environment
+### 5) Configure the Slack bot environment
 
 Create `slack_bot/.env`:
 
@@ -88,7 +106,7 @@ CODEX_ACTION_FOLDER=/absolute/path/to/this/repo/codex_dir
 SLACK_HISTORY_LIMIT=50
 ```
 
-### 5) Install Python dependencies and run the bot
+### 6) Install Python dependencies and run the bot
 
 ```bash
 cd slack_bot
@@ -101,7 +119,7 @@ python app-socket.py
 
 When you see `Start App`, the bot is running.
 
-### 6) Use it from Slack
+### 7) Use it from Slack
 
 Mention the bot in a channel the app is invited to:
 
