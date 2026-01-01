@@ -55,6 +55,7 @@ sandbox_mode = "workspace-write"
 [features]
 streamable_shell = true
 web_search_request = true
+skills = true  # for skills
 
 # Slack MCP: progress reports
 [mcp_servers.slack]

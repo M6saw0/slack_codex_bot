@@ -33,7 +33,6 @@ This skill records and references work logs in **each work folder's SQLite DB** 
 
 ## Implementation Notes
 - Use the script above for log insert/query; auto-create DB if missing.
-- You can reuse `sandbox/test-sqlite-skills/scripts/manage_logs.py`.
 - If schemas differ, extend `schema.sql` to align them.
 
 ## Example Usage
